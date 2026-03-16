@@ -1,75 +1,51 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 function StudentForm() {
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [course, setCourse] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid }
+  } = useForm({
+    mode: "onChange"
+  });
 
-  const [errors, setErrors] = useState({});
-
-  const validateForm = () => {
-
-    let newErrors = {};
-
-    if (!name) {
-      newErrors.name = "Name is required";
-    }
-
-    if (!email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = "Invalid email format";
-    }
-
-    if (!course) {
-      newErrors.course = "Course is required";
-    }
-
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (validateForm()) {
-      alert("Student Registered!");
-    }
+  const onSubmit = (data) => {
+    alert("Student Registered!");
+    console.log(data);
   };
 
   return (
-    <form onSubmit={handleSubmit} style={styles.form}>
+    <form onSubmit={handleSubmit(onSubmit)} style={styles.form}>
 
       <input
         type="text"
         placeholder="Enter Name"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        {...register("name", { required: "Name is required" })}
       />
-
-      {errors.name && <p style={styles.error}>{errors.name}</p>}
+      {errors.name && <p style={styles.error}>{errors.name.message}</p>}
 
       <input
         type="email"
         placeholder="Enter Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        {...register("email", {
+          required: "Email is required",
+          pattern: {
+            value: /^\S+@\S+\.\S+$/,
+            message: "Invalid email format"
+          }
+        })}
       />
-
-      {errors.email && <p style={styles.error}>{errors.email}</p>}
+      {errors.email && <p style={styles.error}>{errors.email.message}</p>}
 
       <input
         type="text"
         placeholder="Enter Course"
-        value={course}
-        onChange={(e) => setCourse(e.target.value)}
+        {...register("course", { required: "Course is required" })}
       />
+      {errors.course && <p style={styles.error}>{errors.course.message}</p>}
 
-      {errors.course && <p style={styles.error}>{errors.course}</p>}
-
-      <button disabled={!name || !email || !course}>
+      <button disabled={!isValid}>
         Submit
       </button>
 
